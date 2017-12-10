@@ -1,0 +1,24 @@
+@charset "UTF-8";
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	max-height: 100%;
+}
+
+body {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	max-height: 100%;
+}
+
+@import '~itourtech-components-commons/packages/css/commons.css';
+@import '~itourtech-components-commons/packages/icon/icon.css';
