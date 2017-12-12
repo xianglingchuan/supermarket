@@ -28,7 +28,7 @@
           'verify_success.png',
           'verify_success.png',
         ],
-        readInterval: 10000,
+        readInterval: 10,
         step: undefined,
         //step: 2,
         lastCacheOrderDate: undefined,
@@ -60,18 +60,18 @@
     },
     //已成功挂载，相当ready()
     mounted() {
-//      console.log("mounted......");
-//      var result = ipc.sendSync('synchronous-message', 'SoonkeReader_Connect');
-//      console.log("mounted......result:"+result);
-//      if (result.ret >= 0) {
-//        result = ipc.sendSync('synchronous-message', 'SoonkeReader_StartInventoryMultiple');
-//        console.log("mounted......result2:"+result);
-//        if (result.ret >= 0) {
-//          this.InventoryMultipleRunning = true;
-//          this.InventoryMultipleData();
-//        }
-//      }
-      this.InventoryMultipleData();
+      console.log("mounted......");
+      var result = ipc.sendSync('synchronous-message', 'SoonkeReader_Connect');
+      console.log("mounted......result:"+result);
+      if (result.ret >= 0) {
+        //result = ipc.sendSync('synchronous-message', 'SoonkeReader_StartInventoryMultiple');
+        console.log("mounted......result2:"+result);
+        //if (result.ret >= 0) {
+          this.InventoryMultipleRunning = true;
+          this.InventoryMultipleData();
+        //}
+      }
+      //this.InventoryMultipleData();
     },
 
 
@@ -82,7 +82,7 @@
 
     },
     beforeDestroy: function () {
-      this.StopInventoryMultiple();
+      //this.StopInventoryMultiple();
     },
     destroyed: function () {
 
@@ -112,16 +112,26 @@
               if (result.data.productData && result.data.productData.length >=1) {
                    //存在未支付订单
                    console.log("存在未支付商品");
+                   //('SoonkeReader_StartWarning'
+                   //2秒以后关闭 ('SoonkeReader_StopWarning'
                    self.step = 1;
               }else{
                   //不存在未支付订单
                   console.log("不存在未支付订单");
+                  self.step = 0;
               }
               if (self.InventoryMultipleRunning) {
                 console.log("要求循环读取信息.......01");
                 setTimeout(self.InventoryMultipleData, self.readInterval);
               }
             }else{
+
+
+              if (self.InventoryMultipleRunning) {
+                console.log("要求循环读取信息.......02");
+                setTimeout(self.InventoryMultipleData, self.readInterval);
+              }
+
 
 //              console.log("请求数据异常,"+result.message);
 //              self.productData = {
@@ -138,7 +148,7 @@
           .catch(function (error) {
             console.log(error);
             if (self.InventoryMultipleRunning) {
-              console.log("要求循环读取信息.......02");
+              console.log("要求循环读取信息.......03");
               setTimeout(self.InventoryMultipleData, self.readInterval);
             }
           });
@@ -147,9 +157,11 @@
 
       /*  多条数据处理  */
       InventoryMultipleData() {
-        //var result = ipc.sendSync('synchronous-message', 'SoonkeReader_InventoryMultipleData');
+        var result = ipc.sendSync('synchronous-message', 'SoonkeReader_InventoryMultipleData');
+        //setTimeout(this.InventoryMultipleData, this.readInterval);
+        //return;
         console.log("InventoryMultipleData.result1------>:"+JSON.stringify(result));
-        var result = {ret:1,epcs:["10000000002","10000000001","10000000003","10000000004","AD003064"]};
+        //var result = {ret:1,epcs:["10000000002","10000000001","10000000003","10000000004","AD003064"]};
         //result = {ret:1,epcs:["AD003070","AD003071","AD003072","AD003073","AD003074","AD003075","AD003076","AD003077",  "1111"]};
         console.log("InventoryMultipleData.result2------>:"+JSON.stringify(result));
         if (result.epcs && result.epcs.length > 0) {
@@ -172,7 +184,7 @@
           //只保留两秒以内扫描到的RFID,如果为两秒以前扫描出来的,直接删除
           var diffDate = new Date().getTime() - this.epcMap[epc];
           console.log("diffDate===="+diffDate+",RFID:"+epc);
-          if (new Date().getTime() - this.epcMap[epc] < 2000) {
+          if (new Date().getTime() - this.epcMap[epc] < 1000) {
             epcs.push(epc);
           } else {
             delete this.epcMap[epc];
@@ -191,6 +203,7 @@
             };
             this.lastCacheOrderDate = new Date();
             this.verifyProduct(param);
+            //setTimeout(this.InventoryMultipleData, self.readInterval);
           } else {
             //重校验订订单
             let param = {
@@ -200,6 +213,7 @@
             };
             this.lastCacheOrderDate = new Date();
             this.verifyProduct(param);
+            //setTimeout(this.InventoryMultipleData, self.readInterval);
           }
         } else {
           this.productData = {
@@ -208,8 +222,8 @@
           };
           this.step = 3;//没有扫描到商品，则转到欢迎页
           if (this.InventoryMultipleRunning) {
-            console.log("要求循环读取信息.......05");
-            setTimeout(this.InventoryMultipleData, 3000);
+            console.log("要求循环读取信息.......04");
+            setTimeout(this.InventoryMultipleData, self.readInterval);
           }
         }
       },
