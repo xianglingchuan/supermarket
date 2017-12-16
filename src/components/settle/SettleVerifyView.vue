@@ -112,8 +112,10 @@
               if (result.data.productData && result.data.productData.length >=1) {
                    //存在未支付订单
                    console.log("存在未支付商品");
-                   //('SoonkeReader_StartWarning'
-                   //2秒以后关闭 ('SoonkeReader_StopWarning'
+                   //开始警报
+                   //ipc.sendSync('synchronous-message', 'SoonkeReader_StartWarning');
+                   //2秒以后关闭警报
+                   //ipc.sendSync('synchronous-message', 'SoonkeReader_StopWarning');
                    self.step = 1;
               }else{
                   //不存在未支付订单
